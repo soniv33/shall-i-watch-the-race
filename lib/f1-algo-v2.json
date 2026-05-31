@@ -1,0 +1,225 @@
+{
+  "version": "2.0",
+  "description": "F1 race quality scoring schema — v2",
+
+  "signals": {
+    "manual": [
+      {
+        "id": "lead_battle",
+        "label": "Lead Battle",
+        "weight": 15,
+        "description": "Quality and duration of fight for race lead (0 = processional, 100 = wheel-to-wheel throughout)"
+      },
+      {
+        "id": "first_lap",
+        "label": "First Lap Drama",
+        "weight": 12,
+        "description": "Incidents, position changes, and incident density on lap 1"
+      },
+      {
+        "id": "midfield_action",
+        "label": "Midfield Action",
+        "weight": 10,
+        "description": "Sustained battles and overtakes in P6–P15"
+      },
+      {
+        "id": "strategy_variety",
+        "label": "Strategy Variety",
+        "weight": 10,
+        "description": "Divergence in pit strategy across front-running teams"
+      },
+      {
+        "id": "weather",
+        "label": "Weather Impact",
+        "weight": 8,
+        "description": "Degree to which changing or wet conditions shaped the race"
+      },
+      {
+        "id": "championship_stakes",
+        "label": "Championship Stakes",
+        "weight": 8,
+        "description": "Importance of this race to the drivers' and constructors' championships"
+      },
+      {
+        "id": "fan_sentiment",
+        "label": "Fan Sentiment",
+        "weight": 8,
+        "description": "Overall crowd / viewer sentiment toward race quality (post-race polls, social tone)"
+      },
+      {
+        "id": "tv_direction",
+        "label": "TV Direction",
+        "weight": 5,
+        "description": "Quality of broadcast — whether battles were shown in real time"
+      }
+    ],
+
+    "auto": [
+      {
+        "id": "finishing_gap",
+        "label": "Finishing Gap (P1–P5)",
+        "field": "gap_p1_p5_seconds",
+        "weight": 12,
+        "direction": "lower_is_better",
+        "unit": "seconds",
+        "description": "Total gap between P1 and P5 at the finish",
+        "thresholds": [
+          { "upper": 2,    "score": 100 },
+          { "upper": 5,    "score": 85  },
+          { "upper": 10,   "score": 65  },
+          { "upper": 20,   "score": 45  },
+          { "upper": 45,   "score": 25  },
+          { "upper": null, "score": 10  }
+        ]
+      },
+      {
+        "id": "overtake_count",
+        "label": "Overtakes for Position",
+        "field": "overtake_count",
+        "weight": 12,
+        "direction": "higher_is_better",
+        "unit": "count",
+        "description": "Number of on-track overtakes for race position (exc. pit-cycle swaps)",
+        "thresholds": [
+          { "upper": 3,    "score": 10  },
+          { "upper": 8,    "score": 30  },
+          { "upper": 15,   "score": 55  },
+          { "upper": 25,   "score": 75  },
+          { "upper": 40,   "score": 90  },
+          { "upper": null, "score": 100 }
+        ]
+      },
+      {
+        "id": "retirement_count",
+        "label": "Retirements",
+        "field": "retirement_count",
+        "weight": 8,
+        "direction": "higher_is_better",
+        "unit": "count",
+        "description": "Number of classified retirements (mechanical or incident)",
+        "thresholds": [
+          { "upper": 0,    "score": 20 },
+          { "upper": 1,    "score": 40 },
+          { "upper": 2,    "score": 60 },
+          { "upper": 3,    "score": 75 },
+          { "upper": null, "score": 90 }
+        ]
+      },
+      {
+        "id": "sc_count",
+        "label": "Safety Car Deployments",
+        "field": "sc_count",
+        "weight": 6,
+        "direction": "higher_is_better",
+        "unit": "count",
+        "description": "Full Safety Car and Virtual Safety Car periods combined",
+        "thresholds": [
+          { "upper": 0,    "score": 25 },
+          { "upper": 1,    "score": 60 },
+          { "upper": 2,    "score": 80 },
+          { "upper": null, "score": 95 }
+        ]
+      },
+      {
+        "id": "reddit_sentiment",
+        "label": "Reddit Sentiment Score",
+        "field": "reddit_sentiment_score",
+        "weight": 4,
+        "direction": "higher_is_better",
+        "unit": "score_0_100",
+        "description": "Normalised 0–100 sentiment score derived from r/formula1 race thread",
+        "thresholds": [
+          { "upper": 20,   "score": 10 },
+          { "upper": 40,   "score": 30 },
+          { "upper": 60,   "score": 55 },
+          { "upper": 80,   "score": 75 },
+          { "upper": null, "score": 95 }
+        ]
+      }
+    ]
+  },
+
+  "circuit_modifiers": {
+    "monaco":      -12,
+    "baku":         8,
+    "interlagos":   8,
+    "spa":          6,
+    "monza":        6,
+    "canada":       3,
+    "silverstone":  3,
+    "singapore":    2,
+    "las_vegas":   -2,
+    "miami":       -3,
+    "abu_dhabi":   -5,
+    "barcelona":   -6
+  },
+
+  "season_dominance": {
+    "max_ceiling_penalty": 15,
+    "description": "Reduces effective score ceiling linearly. At win_rate=1.0 the ceiling is 85. Applied as: ceiling = 100 - (rate * max_ceiling_penalty)."
+  },
+
+  "overrides": [
+    {
+      "id": "red_flag",
+      "label": "Red Flag Race",
+      "type": "floor",
+      "value": 62,
+      "description": "Any race interrupted by a red flag is guaranteed at least 62",
+      "condition": {
+        "context_key": "manual_red_flag",
+        "operator": "eq",
+        "operand": true
+      }
+    },
+    {
+      "id": "bad_direction_low_sentiment",
+      "label": "Poor Direction + Low Sentiment",
+      "type": "cap",
+      "value": 55,
+      "description": "When TV direction AND fan sentiment are both poor, cap the score at 55",
+      "condition": {
+        "all": [
+          { "signal": "tv_direction",  "operator": "lt", "operand": 30 },
+          { "signal": "fan_sentiment", "operator": "lt", "operand": 30 }
+        ]
+      }
+    },
+    {
+      "id": "championship_decider",
+      "label": "Championship Decider",
+      "type": "floor",
+      "value": 65,
+      "description": "Title-deciding races always clear the highlights threshold",
+      "condition": {
+        "signal": "championship_stakes",
+        "operator": "gte",
+        "operand": 90
+      }
+    },
+    {
+      "id": "sprint_weekend_penalty",
+      "label": "Sprint Weekend Penalty",
+      "type": "offset",
+      "value": -3,
+      "description": "Sprint weekends run abbreviated practice; slight quality discount applied",
+      "condition": {
+        "context_key": "is_sprint_weekend",
+        "operator": "eq",
+        "operand": true
+      }
+    }
+  ],
+
+  "thresholds": {
+    "race":       { "min": 70  },
+    "highlights": { "min": 40  },
+    "skip":       { "min": 0   }
+  },
+
+  "confidence": {
+    "low_max":    0.45,
+    "medium_max": 0.75,
+    "description": "Fraction of total signal weight that was actually supplied. < low_max → low; < medium_max → medium; else → high."
+  }
+}
