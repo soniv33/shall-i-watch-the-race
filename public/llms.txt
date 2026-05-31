@@ -1,0 +1,35 @@
+# Shall I Watch The Race?
+
+> Spoiler-free Watch or Highlights verdict for every Formula 1 race. No results, finishing positions, or driver names are revealed — verdicts are based entirely on race control data, weather, and anonymised telemetry.
+
+## What this site does
+
+Shall I Watch The Race? answers a simple question for F1 fans who are catching up on a race they haven't seen yet: is the full race worth watching, or is a highlights package enough?
+
+Each race receives one of two verdicts:
+- **Watch** — enough happened that watching in full is worth your time
+- **Highlights** — the key moments are captured in a short reel; the full race won't add much
+
+Verdicts are computed algorithmically from publicly available race data. No human editorial judgement is involved.
+
+## Scoring methodology
+
+Four signals contribute to a raw score (0–90 pts), normalised against a benchmark of 65 to produce a 0–10 rating. A score of 4.5 or above earns a Watch verdict.
+
+1. **Race incidents** (up to 25 pts) — safety car deployments (10 pts each, cap 20), virtual safety cars (4 pts each, cap 8), red flags (12 pts each). Combined cap 25.
+2. **Weather** (up to 15 pts) — sustained rain (≥40% of readings: 15 pts), significant shower (10–40%: 7 pts), negligible drizzle (≤10%: 0 pts). Dry track temperature swing >8°C adds 5 pts.
+3. **On-track action** (up to 40 pts) — unique race leaders × 6 pts, plus drivers who gained 5+ net positions × 2 pts. Retiring drivers are excluded from position scoring. A recovery-drive signal catches drivers who fell 10+ places but clawed back to near their starting position.
+4. **Pit strategy** (up to 10 pts) — only awarded when the field shows genuinely varied stop counts (max ≥ 3 stops, or average > 2).
+
+## Data sources
+
+- **OpenF1 API** (openf1.org) — race control messages, weather readings, position telemetry, pit stop records
+- **Jolpica/Ergast API** — official F1 calendar for round numbers and race names; used as a gate to filter phantom or cancelled sessions
+
+## Pages
+
+- /: Home — current season races with Watch/Highlights verdicts
+- /about: Full methodology explanation
+- /algorithm: Human-readable scoring algorithm specification
+- /algorithm.md: Machine-readable scoring specification (same content as /algorithm)
+- /whitepaper: Full formal technical report with mathematical notation
