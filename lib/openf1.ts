@@ -7,7 +7,7 @@ const CACHE_TTL: Record<string, number> = {
 };
 const DEFAULT_TTL = 3600;
 
-async function get<T>(path: string, params: Record<string, string | number> = {}, timeoutMs = 8000): Promise<T> {
+async function get<T>(path: string, params: Record<string, string | number> = {}, timeoutMs = 20000): Promise<T> {
   const url = new URL(`${BASE}${path}`);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
 

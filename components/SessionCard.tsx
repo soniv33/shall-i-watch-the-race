@@ -37,17 +37,38 @@ export default function SessionCard({
   useEffect(() => {
     if (session.status !== "completed") { setLoading(false); return; }
     const ctrl = new AbortController();
-    const params = new URLSearchParams({
-      country: session.country,
-      year: String(session.year),
-      type: session.sessionType,
-    });
-    fetch(`/api/score/${session.sessionKey}?${params}`, { signal: ctrl.signal })
-      .then(r => r.json())
-      .then(data => { if (data && typeof data.score === "number") setScore(data as SessionScore); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-    return () => ctrl.abort();
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const doFetch = (isRetry = false) => {
+      const params = new URLSearchParams({
+        country: session.country,
+        year: String(session.year),
+        type: session.sessionType,
+      });
+      fetch(`/api/score/${session.sessionKey}?${params}`, { signal: ctrl.signal })
+        .then(r => r.json())
+        .then(data => {
+          if (data && typeof data.score === "number") {
+            if (data.partial && !isRetry) {
+              // First attempt used incomplete OpenF1 data — retry once after a short
+              // wait so the concurrent request burst can subside and the Data Cache warms up
+              retryTimer = setTimeout(() => doFetch(true), 3000);
+            } else {
+              setScore(data as SessionScore);
+              setLoading(false);
+            }
+          } else {
+            setLoading(false);
+          }
+        })
+        .catch(() => setLoading(false));
+    };
+
+    doFetch();
+    return () => {
+      ctrl.abort();
+      if (retryTimer !== null) clearTimeout(retryTimer);
+    };
   }, [session]);
 
   const isPersonalised =
