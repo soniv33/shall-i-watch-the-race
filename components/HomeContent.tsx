@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { F1Session, GridDriver } from "@/lib/types";
+import { F1Session, GridDriver, SessionScore } from "@/lib/types";
 import SessionCard from "./SessionCard";
 import YearSelector from "./YearSelector";
 import DriverPicker from "./DriverPicker";
@@ -16,10 +16,12 @@ export default function HomeContent({
   sessions,
   year,
   isCurrentYear,
+  scores,
 }: {
   sessions: F1Session[];
   year: number;
   isCurrentYear: boolean;
+  scores: Record<number, SessionScore>;
 }) {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
@@ -161,7 +163,7 @@ export default function HomeContent({
 
       {latestRace && (
         <section>
-          <SessionCard session={latestRace} isHero preferredNums={preferredNums} />
+          <SessionCard session={latestRace} isHero score={scores[latestRace.sessionKey] ?? null} preferredNums={preferredNums} />
         </section>
       )}
 
@@ -172,7 +174,7 @@ export default function HomeContent({
           </h2>
           <div className="flex flex-col gap-2">
             {filtered.map((s) => (
-              <SessionCard key={s.sessionKey} session={s} preferredNums={preferredNums} />
+              <SessionCard key={s.sessionKey} session={s} score={scores[s.sessionKey] ?? null} preferredNums={preferredNums} />
             ))}
           </div>
         </section>
