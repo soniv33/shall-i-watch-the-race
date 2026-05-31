@@ -29,7 +29,9 @@ export async function GET(
 
   try {
     const score = await computeScore(key, sessionType, country, year);
-    cache.set(cacheKey, { score, ts: Date.now() });
+    if (!score.partial) {
+      cache.set(cacheKey, { score, ts: Date.now() });
+    }
 
     return NextResponse.json(score, {
       headers: { "X-Cache": "MISS" },

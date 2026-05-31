@@ -207,5 +207,9 @@ export async function computeScore(
   const verdict: Verdict =
     !isPractice && score >= 4.0 ? "race" : "highlights";
 
-  return { sessionKey, verdict, score, factors: allFactors.map((f) => f.label), notableDrivers };
+  const partial = [rcResult, wxResult, posResult, pitResult].some(
+    (r) => r.status === "rejected"
+  );
+
+  return { sessionKey, verdict, score, factors: allFactors.map((f) => f.label), notableDrivers, partial };
 }

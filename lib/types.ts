@@ -32,6 +32,7 @@ export interface SessionScore {
   score: number;
   factors?: string[];
   notableDrivers?: number[];
+  partial?: boolean;
 }
 
 export interface RacePhase {
