@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getSessions, hasLapData } from "@/lib/openf1";
 import { getCalendar, matchCalendarRound } from "@/lib/jolpica";
-import { F1Session, SessionType } from "@/lib/types";
+import { F1Session, SessionScore, SessionType } from "@/lib/types";
+import { computeScore } from "@/lib/scoring";
 import HomeContent from "@/components/HomeContent";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -114,6 +115,18 @@ export default async function Home({
   const { sessions, year } = await fetchBestSessions(requested);
   const isCurrentYear = year === new Date().getFullYear();
 
+  const completedSessions = sessions.filter((s) => s.status === "completed");
+  const scoreResults = await Promise.allSettled(
+    completedSessions.map((s) => computeScore(s.sessionKey, s.sessionType, s.country, s.year))
+  );
+  const scores: Record<number, SessionScore> = {};
+  completedSessions.forEach((s, i) => {
+    const r = scoreResults[i];
+    if (r.status === "fulfilled" && !r.value.partial) {
+      scores[s.sessionKey] = r.value;
+    }
+  });
+
   return (
     <div className="min-h-screen">
       <nav className="border-b border-border sticky top-0 z-10 bg-card shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
@@ -133,7 +146,7 @@ export default async function Home({
       </nav>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
-        <HomeContent sessions={sessions} year={year} isCurrentYear={isCurrentYear} />
+        <HomeContent sessions={sessions} year={year} isCurrentYear={isCurrentYear} scores={scores} />
       </main>
 
       <footer className="border-t border-border mt-16 py-6 px-4">

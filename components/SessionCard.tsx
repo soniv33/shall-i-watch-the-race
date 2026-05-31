@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { F1Session, SessionScore } from "@/lib/types";
 import VerdictBadge from "./VerdictBadge";
 
@@ -24,52 +21,15 @@ const TYPE_COLOR: Record<string, string> = {
 
 export default function SessionCard({
   session,
+  score = null,
   isHero = false,
   preferredNums = [],
 }: {
   session: F1Session;
+  score?: SessionScore | null;
   isHero?: boolean;
   preferredNums?: number[];
 }) {
-  const [score, setScore] = useState<SessionScore | null>(null);
-  const [loading, setLoading] = useState(session.status === "completed");
-
-  useEffect(() => {
-    if (session.status !== "completed") { setLoading(false); return; }
-    const ctrl = new AbortController();
-    let retryTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const doFetch = (isRetry = false) => {
-      const params = new URLSearchParams({
-        country: session.country,
-        year: String(session.year),
-        type: session.sessionType,
-      });
-      fetch(`/api/score/${session.sessionKey}?${params}`, { signal: ctrl.signal })
-        .then(r => r.json())
-        .then(data => {
-          if (data && typeof data.score === "number") {
-            if (data.partial && !isRetry) {
-              // First attempt used incomplete OpenF1 data — retry once after a short
-              // wait so the concurrent request burst can subside and the Data Cache warms up
-              retryTimer = setTimeout(() => doFetch(true), 3000);
-            } else {
-              setScore(data as SessionScore);
-              setLoading(false);
-            }
-          } else {
-            setLoading(false);
-          }
-        })
-        .catch(() => setLoading(false));
-    };
-
-    doFetch();
-    return () => {
-      ctrl.abort();
-      if (retryTimer !== null) clearTimeout(retryTimer);
-    };
-  }, [session]);
 
   const isPersonalised =
     preferredNums.length > 0 &&
@@ -111,9 +71,9 @@ export default function SessionCard({
           </p>
         </div>
         <div className="flex justify-center mt-2">
-          {loading && <div className="h-10 w-28 rounded bg-foreground/5 animate-pulse" />}
-          {!loading && score && personalisedVerdict && <VerdictBadge verdict={personalisedVerdict} large forYou={forYou} />}
-          {!loading && !score && <span className="text-sm text-muted/40 italic">—</span>}
+          {score && personalisedVerdict
+            ? <VerdictBadge verdict={personalisedVerdict} large forYou={forYou} />
+            : <span className="text-sm text-muted/40 italic">—</span>}
         </div>
       </div>
     );
@@ -143,9 +103,9 @@ export default function SessionCard({
 
       {session.status === "completed" && (
         <div className="shrink-0">
-          {loading && <div className="h-7 w-20 rounded bg-foreground/5 animate-pulse" />}
-          {!loading && score && personalisedVerdict && <VerdictBadge verdict={personalisedVerdict} forYou={forYou} />}
-          {!loading && !score && <span className="text-xs text-muted/40 italic">—</span>}
+          {score && personalisedVerdict
+            ? <VerdictBadge verdict={personalisedVerdict} forYou={forYou} />
+            : <span className="text-xs text-muted/40 italic">—</span>}
         </div>
       )}
     </div>
