@@ -34,8 +34,7 @@ export async function GET(
     return NextResponse.json(score, {
       headers: { "X-Cache": "MISS" },
     });
-  } catch (err) {
-    console.error("Score computation failed:", err);
+  } catch {
     return NextResponse.json({ error: "Scoring failed" }, { status: 502 });
   }
 }
