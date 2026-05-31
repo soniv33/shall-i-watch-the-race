@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Theme tokens (RGB channels for Tailwind opacity support) ── */
+:root {
+  --fg:     255 255 255;   /* foreground text  */
+  --bg:     10  10  10;    /* page background  */
+  --card:   22  22  22;    /* card surface     */
+  --border: 42  42  42;    /* borders          */
+  --muted:  136 136 136;   /* muted text       */
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --fg:     9   9   11;    /* zinc-950         */
+  --bg:     244 244 245;   /* zinc-100         */
+  --card:   255 255 255;   /* white            */
+  --border: 228 228 231;   /* zinc-200         */
+  --muted:  113 113 122;   /* zinc-500         */
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
+  font-family: var(--font-inter);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: rgb(var(--card)); }
+::-webkit-scrollbar-thumb { background: rgb(var(--border)); border-radius: 3px; }
