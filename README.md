@@ -8,9 +8,9 @@ Spoiler-free verdict on every F1 race and sprint: **Worth Watching** or **Highli
 
 ## What it does
 
-Life gets in the way. You missed the race, or the last three. You've got a backlog and not enough weekends to get through it all in full.
+This site lets you prioritise life. Should you watch the full race, or will the highlights be just as good?
 
-This tells you what to prioritise — which races deserve two hours of your time and which ones are fine as a five-minute highlights reel. No spoilers, no opinions, just a score based on what actually happened on track.
+No spoilers, no opinions — just a score based on what actually happened on track.
 
 ## How it scores
 
