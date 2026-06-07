@@ -16,10 +16,12 @@ export default function HomeContent({
   sessions,
   year,
   isCurrentYear,
+  apiError = false,
 }: {
   sessions: F1Session[];
   year: number;
   isCurrentYear: boolean;
+  apiError?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("All");
@@ -151,7 +153,15 @@ export default function HomeContent({
         Should you watch in full or just catch the highlights? No spoilers — just data.
       </p>
 
-      {sessions.length === 0 && (
+      {sessions.length === 0 && apiError && (
+        <div className="text-center py-24 text-muted">
+          <p className="text-4xl mb-4">📡</p>
+          <p className="text-lg font-semibold text-foreground">Race data temporarily unavailable</p>
+          <p className="text-sm mt-1">The OpenF1 API may be busy — this often happens right after a race finishes. Try again in a few minutes.</p>
+        </div>
+      )}
+
+      {sessions.length === 0 && !apiError && (
         <div className="text-center py-24 text-muted">
           <p className="text-4xl mb-4">🏁</p>
           <p className="text-lg font-semibold text-foreground">No sessions found for {year}</p>

@@ -23,7 +23,9 @@ function mapStatus(dateStart: string, dateEnd: string) {
   return end < now ? "completed" as const : "live" as const;
 }
 
-async function fetchSessions(year: number): Promise<F1Session[]> {
+type FetchSessionsResult = { sessions: F1Session[]; apiError: boolean };
+
+async function fetchSessions(year: number): Promise<FetchSessionsResult> {
   try {
     const [raw, calendar] = await Promise.all([getSessions(year), getCalendar(year).catch(() => [])]);
 
@@ -89,19 +91,22 @@ async function fetchSessions(year: number): Promise<F1Session[]> {
     const cancelledMeetings = new Set(
       recentCompleted.filter((_, i) => !lapChecks[i]).map((s) => s.meetingKey)
     );
-    return withRounds.filter((s) => !cancelledMeetings.has(s.meetingKey));
+    return { sessions: withRounds.filter((s) => !cancelledMeetings.has(s.meetingKey)), apiError: false };
   } catch {
-    return [];
+    return { sessions: [], apiError: true };
   }
 }
 
 async function fetchBestSessions(
   requested: number
-): Promise<{ sessions: F1Session[]; year: number }> {
-  const sessions = await fetchSessions(requested);
-  if (sessions.length > 0) return { sessions, year: requested };
+): Promise<{ sessions: F1Session[]; year: number; apiError: boolean }> {
+  const result = await fetchSessions(requested);
+  if (result.sessions.length > 0) return { ...result, year: requested };
+  // Only fall back to the previous year if the API responded (no error) but had no data
+  if (result.apiError) return { sessions: [], year: requested, apiError: true };
   const prev = requested - 1;
-  return { sessions: await fetchSessions(prev), year: prev };
+  const prevResult = await fetchSessions(prev);
+  return { ...prevResult, year: prev };
 }
 
 export default async function Home({
@@ -111,7 +116,7 @@ export default async function Home({
 }) {
   const params = await searchParams;
   const requested = Number(params.year ?? new Date().getFullYear());
-  const { sessions, year } = await fetchBestSessions(requested);
+  const { sessions, year, apiError } = await fetchBestSessions(requested);
   const isCurrentYear = year === new Date().getFullYear();
 
   return (
@@ -133,7 +138,7 @@ export default async function Home({
       </nav>
 
       <main className="max-w-3xl mx-auto px-4 py-8">
-        <HomeContent sessions={sessions} year={year} isCurrentYear={isCurrentYear} />
+        <HomeContent sessions={sessions} year={year} isCurrentYear={isCurrentYear} apiError={apiError} />
       </main>
 
       <footer className="border-t border-border mt-16 py-6 px-4">
