@@ -25,6 +25,11 @@ export const metadata: Metadata = {
   },
 };
 
+// Cloudflare Web Analytics beacon token (public — it ships in the HTML).
+// Set NEXT_PUBLIC_CF_BEACON_TOKEN in Vercel, or paste the token here directly.
+// Get it from Cloudflare dashboard → Web Analytics → Add a site.
+const CF_BEACON_TOKEN = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN ?? "";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
@@ -33,6 +38,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} ${barlow.variable} min-h-screen font-sans`}>
         {children}
         <Analytics />
+        {CF_BEACON_TOKEN && (
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: CF_BEACON_TOKEN })}
+          />
+        )}
       </body>
     </html>
   );
