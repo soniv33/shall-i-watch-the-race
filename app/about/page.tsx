@@ -106,7 +106,7 @@ export default function AboutPage() {
               The raw score is normalised against a benchmark of 65 points — calibrated so
               that a genuinely exciting race (safety car, lead battle, solid overtaking)
               scores 6–8 out of 10.
-              A score of 6.0 or above earns a <span className="text-race">Worth Watching</span> verdict;
+              A score of 5.0 or above earns a <span className="text-race">Worth Watching</span> verdict;
               below that it's <span className="text-highlights">Highlights Only</span>.
               Strategy points are only awarded when a race features genuinely varied pit stop
               counts — not just because the field averaged a second stop.

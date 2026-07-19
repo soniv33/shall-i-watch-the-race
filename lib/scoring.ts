@@ -57,7 +57,9 @@ export function scScore(events: OpenF1RaceControl[]): { pts: number; factors: Sc
   ).length;
 
   if (sc > 0) {
-    pts += Math.min(20, sc * 10);
+    // Interruptions are a bonus signal, not the backbone: an SC bunches the field
+    // but doesn't guarantee racing worth watching (Spa 2026)
+    pts += Math.min(12, sc * 6);
     factors.push({ label: sc > 1 ? `${sc}× safety car` : "Safety car", emoji: "🚗" });
   }
   if (vsc > 0) {
@@ -177,7 +179,7 @@ export function positionScore(
     }
   }
 
-  const pts = Math.min(40, uniqueLeaders * 6 + bigMovers * 2);
+  const pts = Math.min(40, uniqueLeaders * 8 + bigMovers * 2);
 
   const factors: ScoreFactor[] = [];
   if (uniqueLeaders >= 3) factors.push({ label: "Lead battle", emoji: "🏆" });
@@ -263,7 +265,7 @@ export async function computeScore(
   const score = Math.min(10, Math.round((raw / ceiling) * 100) / 10);
 
   const verdict: Verdict =
-    !isPractice && score >= 6.0 ? "race" : "highlights";
+    !isPractice && score >= 5.0 ? "race" : "highlights";
 
   const partial = [rcResult, wxResult, posResult, pitResult].some(
     (r) => r.status === "rejected"

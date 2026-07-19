@@ -61,7 +61,7 @@ export default function AlgorithmPage() {
               <tbody className="divide-y divide-border">
                 <tr>
                   <td className="px-5 py-3 text-foreground font-medium">Race incidents</td>
-                  <td className="px-5 py-3 text-foreground/50">Safety car incidents (10 pts each, cap 20) — deployments within 10 minutes count as one incident. Virtual safety cars (4 pts each, cap 8), red flags (12 pts each, cap 12). Combined cap 25.</td>
+                  <td className="px-5 py-3 text-foreground/50">Safety car incidents (6 pts each, cap 12) — deployments within 10 minutes count as one incident, and interruptions deliberately weigh less than on-track action. Virtual safety cars (4 pts each, cap 8), red flags (12 pts each, cap 12). Combined cap 25.</td>
                   <td className="px-5 py-3 text-foreground/80 text-right font-mono">25</td>
                 </tr>
                 <tr>
@@ -71,7 +71,7 @@ export default function AlgorithmPage() {
                 </tr>
                 <tr>
                   <td className="px-5 py-3 text-foreground font-medium">Position changes</td>
-                  <td className="px-5 py-3 text-foreground/50">6 pts per sustained leader — a driver who held P1 for at least 5 cumulative minutes of race time, so lap-1 scrambles and pit-cycle blips don't count. 2 pts per driver who gains 5+ places net, or triggers the recovery drive signal. Cap 40.</td>
+                  <td className="px-5 py-3 text-foreground/50">8 pts per sustained leader — a driver who held P1 for at least 5 cumulative minutes of race time, so lap-1 scrambles and pit-cycle blips don't count. 2 pts per driver who gains 5+ places net, or triggers the recovery drive signal. Cap 40.</td>
                   <td className="px-5 py-3 text-foreground/80 text-right font-mono">40</td>
                 </tr>
                 <tr>
@@ -109,7 +109,7 @@ export default function AlgorithmPage() {
             </p>
             <p className="text-sm text-foreground/60 leading-relaxed">
               A session scores a <span className="text-race">Worth Watching</span> verdict when it reaches{
-              " "}<span className="text-foreground/80">6.0 or above</span>. Below that threshold the verdict
+              " "}<span className="text-foreground/80">5.0 or above</span>. Below that threshold the verdict
               is <span className="text-highlights">Highlights Only</span>. Practice sessions always receive
               Highlights Only regardless of score.
             </p>

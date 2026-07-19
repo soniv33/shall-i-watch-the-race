@@ -208,11 +208,13 @@ export default function WhitepaperPage() {
               with <M tex="n_{VSC}" /> and <M tex="n_{RF}" /> the raw counts of the other two
               event types observed in the race control feed:
             </p>
-            <MB tex="S_{\text{incidents}} \;=\; \min\!\Bigl[\,\min(10\,n_{SC},\;20) \;+\; \min(4\,n_{VSC},\;8) \;+\; \min(12\,n_{RF},\;12),\;\;25\Bigr]" />
+            <MB tex="S_{\text{incidents}} \;=\; \min\!\Bigl[\,\min(6\,n_{SC},\;12) \;+\; \min(4\,n_{VSC},\;8) \;+\; \min(12\,n_{RF},\;12),\;\;25\Bigr]" />
             <p className="text-[13.5px] mb-4">
-              Safety cars receive the highest per-event weight because they frequently cause pit stop
-              divergence and position reshuffling. The cap at 25 prevents a race with many safety cars
-              from scoring highly on incidents alone—on-track action must also be present.
+              Safety cars are deliberately weighted below the on-track signals of Section 3.3: a
+              deployment bunches the field and creates pit-stop divergence, but an interrupted race
+              is not automatically an exciting one. Red flags carry the highest per-event weight, as
+              a stoppage almost always reflects a major incident. The combined cap at 25 ensures
+              on-track action must also be present for a high score.
             </p>
 
             <h3 className="text-[14px] font-bold mb-2">3.2 Weather Conditions</h3>
@@ -267,9 +269,9 @@ export default function WhitepaperPage() {
               circuits:
             </p>
             <MB tex="M \;=\; \sum_{d \in D}\!\left(\phi(d) \;\vee\; \rho(d)\right), \qquad L \;=\; \bigl|\!\bigl\{d \in D : \tau_d \;\geq\; 5\,\text{min}\bigr\}\bigr|" />
-            <MB tex="S_{\text{position}} \;=\; \min\!\bigl(6L \;+\; 2M,\;\;40\bigr)" />
+            <MB tex="S_{\text{position}} \;=\; \min\!\bigl(8L \;+\; 2M,\;\;40\bigr)" />
             <p className="text-[13.5px] mb-4">
-              Lead changes (<M tex="L" />) are weighted three times higher than mover counts (<M tex="M" />)
+              Lead changes (<M tex="L" />) are weighted four times higher than mover counts (<M tex="M" />)
               because a contested lead is the strongest indicator of a race worth watching in full.
             </p>
 
@@ -302,14 +304,14 @@ export default function WhitepaperPage() {
               of 10. Setting <M tex="C = 90" /> (the theoretical maximum) compressed scores into a
               narrow range and made separation between races difficult. The binary verdict is then:
             </p>
-            <MB tex="V \;=\; \begin{cases} \textit{Watch} & \sigma \;\geq\; 6.0 \\ \textit{Highlights} & \sigma \;<\; 6.0 \end{cases}" />
+            <MB tex="V \;=\; \begin{cases} \textit{Watch} & \sigma \;\geq\; 5.0 \\ \textit{Highlights} & \sigma \;<\; 5.0 \end{cases}" />
             <p className="text-[13.5px]">
-              The threshold of 6.0 was calibrated empirically against a full season of verdicts. At
-              this level a race needs genuine on-track action—a sustained lead battle, strong
-              overtaking, or varied strategy—on top of any interruptions. Races whose points come
-              mostly from safety cars and timing artifacts (momentary leaders during pit cycles)
-              land below the line, matching the intuition that an interrupted race is not
-              automatically an exciting one.
+              The threshold of 5.0 was calibrated empirically against a full season of verdicts
+              cross-checked with fan and press sentiment. At this level a race needs genuine
+              on-track action—a sustained lead battle, strong overtaking, or varied strategy—on
+              top of any interruptions. Races whose points come mostly from safety cars and timing
+              artifacts (momentary leaders during pit cycles) land below the line, matching the
+              intuition that an interrupted race is not automatically an exciting one.
             </p>
           </section>
 
