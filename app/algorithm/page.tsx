@@ -184,11 +184,11 @@ export default function AlgorithmPage() {
               <li className="flex gap-2">
                 <span className="text-f1red mt-0.5 shrink-0">2.</span>
                 <span>
-                  <span className="text-foreground/80">hasLapData check:</span> for recently-completed
-                  races (within 60 days), a secondary check verifies that OpenF1 holds lap data for
-                  the session. This catches the narrow case of a cancelled session that passes the
-                  calendar gate because it falls within 8 days of a real race. Historical seasons
-                  skip this check to avoid mass timeouts from concurrent requests.
+                  <span className="text-foreground/80">hasLapData check:</span> for every completed
+                  race of the current season, a secondary check verifies that OpenF1 holds lap data
+                  for the session. This excludes cancelled races that still appear in the calendar.
+                  Historical seasons skip this check — OpenF1 has genuine data gaps for races that
+                  did run, and hiding them would be wrong.
                 </span>
               </li>
             </ul>

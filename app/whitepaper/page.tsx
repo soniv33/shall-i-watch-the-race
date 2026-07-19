@@ -297,7 +297,7 @@ export default function WhitepaperPage() {
               " "}<M tex="C = 65" /> (rather than the theoretical maximum of 90) and rounded to one
               decimal place:
             </p>
-            <MB tex="\sigma \;=\; \min\!\left(10,\;\;\left\lfloor\frac{R}{C} \times 100\right\rfloor \big/ 10\right)" />
+            <MB tex="\sigma \;=\; \min\!\left(10,\;\;\operatorname{round}\!\left(\frac{R}{C} \times 100\right) \big/ 10\right)" />
             <p className="text-[13.5px] mb-3">
               The ceiling of 65 was calibrated so that a genuinely exciting race—containing a safety
               car deployment, multiple lead changes, and solid overtaking—scores approximately 6–8 out
@@ -306,12 +306,10 @@ export default function WhitepaperPage() {
             </p>
             <MB tex="V \;=\; \begin{cases} \textit{Watch} & \sigma \;\geq\; 5.0 \\ \textit{Highlights} & \sigma \;<\; 5.0 \end{cases}" />
             <p className="text-[13.5px]">
-              The threshold of 5.0 was calibrated empirically against a full season of verdicts
-              cross-checked with fan and press sentiment. At this level a race needs genuine
+              The threshold of 5.0 was chosen empirically. At this level a race needs genuine
               on-track action—a sustained lead battle, strong overtaking, or varied strategy—on
-              top of any interruptions. Races whose points come mostly from safety cars and timing
-              artifacts (momentary leaders during pit cycles) land below the line, matching the
-              intuition that an interrupted race is not automatically an exciting one.
+              top of any interruptions. Races whose points come mostly from safety cars land below
+              the line: an interrupted race is not automatically an exciting one.
             </p>
           </section>
 
@@ -352,12 +350,13 @@ export default function WhitepaperPage() {
                 with an 8-day window; sessions outside this window are dropped.
               </li>
               <li>
-                <strong>Lap-data check (recent sessions only).</strong> For sessions completed within
-                the last 60 days, the scoring system verifies that at least 10 drivers have a recorded
-                lap-1 entry. A cancelled session that happens to fall within the calendar window
-                (e.g., a wet-weather cancellation at a circuit running back-to-back weekends) has zero
-                lap records and is therefore excluded. This check is limited to recent sessions to
-                avoid issuing 20+ concurrent requests when loading historical seasons.
+                <strong>Lap-data check (current season).</strong> For every completed race of the
+                current season, the scoring system verifies that at least 10 drivers have a recorded
+                lap-1 entry. A cancelled session that still appears in the calendar (e.g., the 2026
+                Bahrain and Saudi Arabian rounds, called off for geopolitical reasons) has zero lap
+                records and is therefore excluded. Historical seasons are deliberately not filtered:
+                OpenF1 has genuine data gaps for races that did take place, and hiding them would be
+                worse than showing them without a verdict.
               </li>
             </ol>
             <p className="text-[13.5px]">
@@ -380,8 +379,10 @@ export default function WhitepaperPage() {
             </ul>
             <p className="text-[13.5px]">
               Future iterations may incorporate a continuous-overtake count (if made available through
-              the OpenF1 API) and a nearest-rival proximity signal derived from GPS coordinates to
-              address the close-battle limitation.
+              the OpenF1 API) and a proximity signal to address the close-battle limitation. Raw
+              time-within-one-second is not a viable form of that signal—under the 2026 regulations
+              cars run in close formation by default, so proximity alone detects trains rather than
+              battles; it must be paired with a subsequent position change to count.
             </p>
           </section>
 
@@ -405,7 +406,7 @@ export default function WhitepaperPage() {
 
           <div className="mt-10 pt-4 border-t border-[#ddd] text-[11px] text-[#999] flex justify-between">
             <span>© 2026 Vishal Soni · shalliwatchtherace.com</span>
-            <span>Technical Report v1.0</span>
+            <span>Technical Report v1.1 · revised July 2026</span>
           </div>
 
         </article>
