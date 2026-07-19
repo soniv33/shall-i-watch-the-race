@@ -45,6 +45,7 @@ export default function SessionCard({
         country: session.country,
         year: String(session.year),
         type: session.sessionType,
+        start: session.dateStart,
       });
       fetch(`/api/score/${session.sessionKey}?${params}`, { signal: ctrl.signal })
         .then(r => r.json())

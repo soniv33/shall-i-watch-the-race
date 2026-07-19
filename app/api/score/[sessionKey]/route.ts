@@ -14,6 +14,7 @@ export async function GET(
   const country = req.nextUrl.searchParams.get("country") ?? "";
   const year = Number(req.nextUrl.searchParams.get("year") ?? 2025);
   const sessionType = req.nextUrl.searchParams.get("type") ?? "Race";
+  const dateStart = req.nextUrl.searchParams.get("start") ?? undefined;
 
   if (!key || isNaN(key)) {
     return NextResponse.json({ error: "Invalid sessionKey" }, { status: 400 });
@@ -28,7 +29,7 @@ export async function GET(
   }
 
   try {
-    const score = await computeScore(key, sessionType, country, year);
+    const score = await computeScore(key, sessionType, country, year, dateStart);
     if (!score.partial) {
       cache.set(cacheKey, { score, ts: Date.now() });
     }

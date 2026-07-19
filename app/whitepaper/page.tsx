@@ -201,9 +201,12 @@ export default function WhitepaperPage() {
             <h3 className="text-[14px] font-bold mb-2">3.1 Race Control Events</h3>
             <p className="text-[13.5px] mb-3">
               Interruptions to normal racing—safety car (SC) deployments, virtual safety car (VSC)
-              periods, and red flags—reliably indicate incidents that reshape the field. Let{
-              " "}<M tex="n_{SC}" />, <M tex="n_{VSC}" />, and <M tex="n_{RF}" /> denote the count of each
-              event type observed in the race control feed:
+              periods, and red flags—reliably indicate incidents that reshape the field. SC
+              deployments occurring within a 10-minute window are merged into a single{
+              " "}<em>incident</em>: an immediate re-deployment after a failed restart is the same
+              disruption, not new drama. Let <M tex="n_{SC}" /> denote the merged incident count,
+              with <M tex="n_{VSC}" /> and <M tex="n_{RF}" /> the raw counts of the other two
+              event types observed in the race control feed:
             </p>
             <MB tex="S_{\text{incidents}} \;=\; \min\!\Bigl[\,\min(10\,n_{SC},\;20) \;+\; \min(4\,n_{VSC},\;8) \;+\; \min(12\,n_{RF},\;12),\;\;25\Bigr]" />
             <p className="text-[13.5px] mb-4">
@@ -225,10 +228,11 @@ export default function WhitepaperPage() {
             <p className="text-[13.5px] mb-3">
               The 10% lower bound prevents a brief shower—common at circuits such as Interlagos—from
               receiving the same score as a genuinely wet race. An additional 5-point bonus{
-              " "}<M tex="g(\Delta T, r_w)" /> is awarded when track temperature swings exceed 8°C under dry
-              conditions, capturing races where a cooling track changes tyre behaviour mid-race:
+              " "}<M tex="g(\Delta T, r_w)" /> is awarded when track temperature swings exceed 12°C under dry
+              conditions, capturing races where a cooling track changes tyre behaviour mid-race
+              (an ordinary afternoon drifts ~10°C at some circuits without affecting the racing):
             </p>
-            <MB tex="g(\Delta T,\, r_w) \;=\; \begin{cases} 5 & \Delta T > 8 \;\wedge\; r_w = 0 \\ 0 & \text{otherwise} \end{cases}" />
+            <MB tex="g(\Delta T,\, r_w) \;=\; \begin{cases} 5 & \Delta T > 12 \;\wedge\; r_w = 0 \\ 0 & \text{otherwise} \end{cases}" />
             <MB tex="S_{\text{weather}} \;=\; \min\!\bigl[f(r_w) + g(\Delta T, r_w),\;\;15\bigr]" />
 
             <h3 className="text-[14px] font-bold mb-2">3.3 On-Track Position Dynamics</h3>
@@ -255,10 +259,14 @@ export default function WhitepaperPage() {
             </p>
             <MB tex="\rho(d) \;=\; \mathbf{1}\!\left[p_d^{*} - p_d^{(0)} \;\geq\; 10 \;\wedge\; \bigl|p_d^{(T)} - p_d^{(0)}\bigr| \;\leq\; 2\right]" />
             <p className="text-[13.5px] mb-2">
-              Let <M tex="M" /> be the total mover count and <M tex="L" /> the number of unique
-              drivers who held first position at any point during the session:
+              Let <M tex="M" /> be the total mover count and <M tex="L" /> the number of{
+              " "}<em>sustained leaders</em>: drivers whose cumulative time at P1 after the race
+              start, <M tex="\tau_d" />, reaches at least 5 minutes. The threshold matters — a
+              momentary P1 during a lap-1 scramble or a pit-stop cycle is a timing artifact, not a
+              lead battle, and counting it systematically inflated scores at strategy-dominated
+              circuits:
             </p>
-            <MB tex="M \;=\; \sum_{d \in D}\!\left(\phi(d) \;\vee\; \rho(d)\right), \qquad L \;=\; \bigl|\!\bigl\{d \in D : \exists\, t \text{ s.t. } p_d^{(t)} = 1\bigr\}\bigr|" />
+            <MB tex="M \;=\; \sum_{d \in D}\!\left(\phi(d) \;\vee\; \rho(d)\right), \qquad L \;=\; \bigl|\!\bigl\{d \in D : \tau_d \;\geq\; 5\,\text{min}\bigr\}\bigr|" />
             <MB tex="S_{\text{position}} \;=\; \min\!\bigl(6L \;+\; 2M,\;\;40\bigr)" />
             <p className="text-[13.5px] mb-4">
               Lead changes (<M tex="L" />) are weighted three times higher than mover counts (<M tex="M" />)
@@ -270,13 +278,13 @@ export default function WhitepaperPage() {
               Let <M tex="s_d" /> be the number of pit stops recorded for driver <M tex="d" />{
               " "}and <M tex="D" /> the set of drivers with at least one recorded stop:
             </p>
-            <MB tex="\bar{s} \;=\; \frac{1}{|D|}\sum_{d \in D} s_d, \qquad s_{\max} \;=\; \max_{d \in D}\, s_d" />
-            <MB tex="S_{\text{pit}} \;=\; \begin{cases} 10 & s_{\max} \;\geq\; 3 \;\vee\; \bar{s} \;>\; 2 \\ 0 & \text{otherwise} \end{cases}" />
+            <MB tex="\bar{s} \;=\; \frac{1}{|D|}\sum_{d \in D} s_d" />
+            <MB tex="S_{\text{pit}} \;=\; \begin{cases} 10 & \bar{s} \;>\; 2 \\ 0 & \text{otherwise} \end{cases}" />
             <p className="text-[13.5px]">
               This signal captures races where genuinely varied strategy—some drivers taking two stops
-              while others extend on one—creates diverging storylines. It does not reward uniformly
-              high stop counts, since a race in which every driver pits three times on a standard
-              degradation schedule is not more exciting than a conventional two-stop race.
+              while others extend on one—creates diverging storylines. Only the field average is
+              considered: a single driver making three or more stops is far more often evidence of
+              damage or a penalty than of a strategic race, so per-driver maxima are ignored.
             </p>
           </section>
 
@@ -294,11 +302,14 @@ export default function WhitepaperPage() {
               of 10. Setting <M tex="C = 90" /> (the theoretical maximum) compressed scores into a
               narrow range and made separation between races difficult. The binary verdict is then:
             </p>
-            <MB tex="V \;=\; \begin{cases} \textit{Watch} & \sigma \;\geq\; 4.0 \\ \textit{Highlights} & \sigma \;<\; 4.0 \end{cases}" />
+            <MB tex="V \;=\; \begin{cases} \textit{Watch} & \sigma \;\geq\; 6.0 \\ \textit{Highlights} & \sigma \;<\; 6.0 \end{cases}" />
             <p className="text-[13.5px]">
-              The threshold of 4.0 was chosen empirically. At this level, a race requires at least
-              one safety car <em>or</em> a modest amount of on-track overtaking to be recommended.
-              Processional races, even those with brief showers, score below the threshold.
+              The threshold of 6.0 was calibrated empirically against a full season of verdicts. At
+              this level a race needs genuine on-track action—a sustained lead battle, strong
+              overtaking, or varied strategy—on top of any interruptions. Races whose points come
+              mostly from safety cars and timing artifacts (momentary leaders during pit cycles)
+              land below the line, matching the intuition that an interrupted race is not
+              automatically an exciting one.
             </p>
           </section>
 
