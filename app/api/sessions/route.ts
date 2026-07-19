@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessions } from "@/lib/openf1";
-import { F1Session, SessionStatus } from "@/lib/types";
+import { F1Session } from "@/lib/types";
+import { mapSessionStatus } from "@/lib/sessionStatus";
 
 const ALLOWED = new Set(["Race", "Sprint"]);
-
-function sessionStatus(dateStart: string, dateEnd: string): SessionStatus {
-  const now = Date.now();
-  const start = new Date(dateStart).getTime();
-  const end = new Date(dateEnd).getTime();
-  if (now < start) return "upcoming";
-  if (now > end) return "completed";
-  return "live";
-}
 
 export async function GET(req: NextRequest) {
   const year = Number(req.nextUrl.searchParams.get("year") ?? new Date().getFullYear());
@@ -32,7 +24,7 @@ export async function GET(req: NextRequest) {
         dateEnd: s.date_end ?? s.date_start,
         year: s.year,
         meetingKey: s.meeting_key,
-        status: sessionStatus(s.date_start, s.date_end ?? s.date_start),
+        status: mapSessionStatus(s.date_start, s.date_end ?? s.date_start),
       }))
       .sort(
         (a, b) => new Date(b.dateStart).getTime() - new Date(a.dateStart).getTime()

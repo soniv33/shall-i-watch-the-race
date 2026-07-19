@@ -74,8 +74,12 @@ export default function HomeContent({
   }, [driverPref, teamPref, gridDrivers]);
 
   const latestRace = isCurrentYear
-    ? (sessions.find((s) => s.status === "completed" && s.sessionType === "Race") ??
-       sessions.find((s) => s.status === "completed"))
+    ? (sessions.find(
+        (s) =>
+          (s.status === "completed" || s.status === "justFinished") &&
+          s.sessionType === "Race"
+      ) ??
+       sessions.find((s) => s.status === "completed" || s.status === "justFinished"))
     : null;
 
   const filtered = useMemo(() => {

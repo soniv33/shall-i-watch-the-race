@@ -8,7 +8,7 @@ export interface GridDriver {
 }
 
 export type Verdict = "race" | "highlights";
-export type SessionStatus = "completed" | "live" | "upcoming";
+export type SessionStatus = "completed" | "justFinished" | "live" | "upcoming";
 
 export interface F1Session {
   sessionKey: number;

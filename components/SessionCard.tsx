@@ -113,7 +113,19 @@ export default function SessionCard({
         <div className="flex justify-center mt-2">
           {loading && <div className="h-10 w-28 rounded bg-foreground/5 animate-pulse" />}
           {!loading && score && personalisedVerdict && <VerdictBadge verdict={personalisedVerdict} large forYou={forYou} />}
-          {!loading && !score && <span className="text-sm text-muted/40 italic">—</span>}
+          {!loading && !score && session.status === "justFinished" && (
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-sm font-semibold px-3 py-1.5 rounded bg-foreground/5 text-muted border border-border">
+                🏁 Just finished
+              </span>
+              <span className="text-xs text-muted/60">
+                Verdict coming soon — race data is still settling. Check back in a bit.
+              </span>
+            </div>
+          )}
+          {!loading && !score && session.status !== "justFinished" && (
+            <span className="text-sm text-muted/40 italic">—</span>
+          )}
         </div>
       </div>
     );
@@ -146,6 +158,11 @@ export default function SessionCard({
           {loading && <div className="h-7 w-20 rounded bg-foreground/5 animate-pulse" />}
           {!loading && score && personalisedVerdict && <VerdictBadge verdict={personalisedVerdict} forYou={forYou} />}
           {!loading && !score && <span className="text-xs text-muted/40 italic">—</span>}
+        </div>
+      )}
+      {session.status === "justFinished" && (
+        <div className="shrink-0">
+          <span className="text-xs text-muted/60 italic">Verdict soon</span>
         </div>
       )}
     </div>

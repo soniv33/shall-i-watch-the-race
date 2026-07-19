@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSessions, hasLapData } from "@/lib/openf1";
 import { getCalendar, matchCalendarRound } from "@/lib/jolpica";
 import { F1Session, SessionType } from "@/lib/types";
+import { mapSessionStatus } from "@/lib/sessionStatus";
 import HomeContent from "@/components/HomeContent";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -13,15 +14,6 @@ const SESSION_TYPE_MAP: Record<string, SessionType> = {
   Race: "Race",
   Sprint: "Sprint",
 };
-
-function mapStatus(dateStart: string, dateEnd: string) {
-  const now = Date.now();
-  const start = new Date(dateStart).getTime();
-  const end = new Date(dateEnd || dateStart).getTime();
-  if (now < start) return "upcoming" as const;
-  if (now > end + 1000 * 60 * 60 * 2) return "completed" as const;
-  return end < now ? "completed" as const : "live" as const;
-}
 
 type FetchSessionsResult = { sessions: F1Session[]; apiError: boolean };
 
@@ -47,7 +39,7 @@ async function fetchSessions(year: number): Promise<FetchSessionsResult> {
         dateEnd: s.date_end ?? s.date_start,
         year: s.year,
         meetingKey: s.meeting_key,
-        status: mapStatus(s.date_start, s.date_end ?? s.date_start),
+        status: mapSessionStatus(s.date_start, s.date_end ?? s.date_start),
       }))
       .sort((a, b) => new Date(b.dateStart).getTime() - new Date(a.dateStart).getTime());
 
