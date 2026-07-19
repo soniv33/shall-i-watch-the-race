@@ -75,13 +75,14 @@ async function fetchSessions(year: number): Promise<FetchSessionsResult> {
 
     const completedRaces = withRounds.filter((s) => s.sessionType === "Race" && s.status === "completed");
 
-    const RECENT_MS = 60 * 24 * 3600 * 1000;
-    const recentCompleted = completedRaces.filter(
-      (s) => Date.now() - new Date(s.dateStart).getTime() < RECENT_MS
-    );
-    const lapChecks = await Promise.all(recentCompleted.map((s) => hasLapData(s.sessionKey)));
+    // Check the whole current season, not a rolling window: cancelled races (e.g.
+    // Bahrain/Saudi 2026) must stay hidden after they age out. Past seasons are
+    // never filtered — OpenF1 has data gaps for real historical races.
+    const currentSeason = year === new Date().getFullYear();
+    const lapCheckCandidates = currentSeason ? completedRaces : [];
+    const lapChecks = await Promise.all(lapCheckCandidates.map((s) => hasLapData(s.sessionKey)));
     const cancelledMeetings = new Set(
-      recentCompleted.filter((_, i) => !lapChecks[i]).map((s) => s.meetingKey)
+      lapCheckCandidates.filter((_, i) => !lapChecks[i]).map((s) => s.meetingKey)
     );
     return { sessions: withRounds.filter((s) => !cancelledMeetings.has(s.meetingKey)), apiError: false };
   } catch {
