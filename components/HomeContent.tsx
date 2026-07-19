@@ -73,6 +73,10 @@ export default function HomeContent({
     return nums;
   }, [driverPref, teamPref, gridDrivers]);
 
+  const raceDay = sessions.some(
+    (s) => s.status === "live" || s.status === "justFinished"
+  );
+
   const latestRace = isCurrentYear
     ? (sessions.find(
         (s) =>
@@ -156,6 +160,17 @@ export default function HomeContent({
       <p className="text-sm text-muted">
         Should you watch in full or just catch the highlights? No spoilers — just data.
       </p>
+
+      {raceDay && (
+        <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-f1red/5 border border-f1red/20 text-sm text-muted">
+          <span aria-hidden>🏁</span>
+          <p>
+            <span className="font-semibold text-foreground">Race day.</span>{" "}
+            Verdicts may be delayed while session data settles — nothing here will
+            spoil the result.
+          </p>
+        </div>
+      )}
 
       {sessions.length === 0 && apiError && (
         <div className="text-center py-24 text-muted">

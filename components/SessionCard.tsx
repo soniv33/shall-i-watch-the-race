@@ -33,6 +33,7 @@ export default function SessionCard({
 }) {
   const [score, setScore] = useState<SessionScore | null>(null);
   const [loading, setLoading] = useState(session.status === "completed");
+  const [delayed, setDelayed] = useState(false);
 
   useEffect(() => {
     if (session.status !== "completed") { setLoading(false); return; }
@@ -53,6 +54,11 @@ export default function SessionCard({
               // First attempt used incomplete OpenF1 data — retry once after a short
               // wait so the concurrent request burst can subside and the Data Cache warms up
               retryTimer = setTimeout(() => doFetch(true), 3000);
+            } else if (data.partial) {
+              // Still incomplete after the retry: an under-counted score would show a
+              // wrong verdict, so surface a "delayed" state instead of a best-effort guess
+              setDelayed(true);
+              setLoading(false);
             } else {
               setScore(data as SessionScore);
               setLoading(false);
@@ -123,7 +129,17 @@ export default function SessionCard({
               </span>
             </div>
           )}
-          {!loading && !score && session.status !== "justFinished" && (
+          {!loading && !score && delayed && session.status !== "justFinished" && (
+            <div className="flex flex-col items-center gap-1.5">
+              <span className="text-sm font-semibold px-3 py-1.5 rounded bg-foreground/5 text-muted border border-border">
+                ⏳ Verdict delayed
+              </span>
+              <span className="text-xs text-muted/60">
+                Race data is incomplete right now — check back soon.
+              </span>
+            </div>
+          )}
+          {!loading && !score && !delayed && session.status !== "justFinished" && (
             <span className="text-sm text-muted/40 italic">—</span>
           )}
         </div>
@@ -157,7 +173,10 @@ export default function SessionCard({
         <div className="shrink-0">
           {loading && <div className="h-7 w-20 rounded bg-foreground/5 animate-pulse" />}
           {!loading && score && personalisedVerdict && <VerdictBadge verdict={personalisedVerdict} forYou={forYou} />}
-          {!loading && !score && <span className="text-xs text-muted/40 italic">—</span>}
+          {!loading && !score && delayed && (
+            <span className="text-xs text-muted/60 italic">Verdict delayed</span>
+          )}
+          {!loading && !score && !delayed && <span className="text-xs text-muted/40 italic">—</span>}
         </div>
       )}
       {session.status === "justFinished" && (
