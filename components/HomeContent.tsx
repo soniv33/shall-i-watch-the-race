@@ -73,9 +73,8 @@ export default function HomeContent({
     return nums;
   }, [driverPref, teamPref, gridDrivers]);
 
-  const raceDay = sessions.some(
-    (s) => s.status === "live" || s.status === "justFinished"
-  );
+  const raceDaySession =
+    sessions.find((s) => s.status === "live" || s.status === "justFinished") ?? null;
 
   const latestRace = isCurrentYear
     ? (sessions.find(
@@ -103,6 +102,35 @@ export default function HomeContent({
       .filter((s) => typeFilter === "All" || s.sessionType === typeFilter)
       .sort((a, b) => new Date(b.dateStart).getTime() - new Date(a.dateStart).getTime());
   }, [sessions, query, typeFilter, latestRace]);
+
+  // During a session and for ~2h after (while OpenF1 backfills data), scores across
+  // the whole season are unreliable — hold the verdicts instead of showing bad ones.
+  if (raceDaySession) {
+    return (
+      <div className="flex flex-col gap-6">
+        <p className="text-sm text-muted">
+          Should you watch in full or just catch the highlights? No spoilers — just data.
+        </p>
+
+        <section>
+          <SessionCard session={raceDaySession} isHero preferredNums={preferredNums} />
+        </section>
+
+        <div className="text-center py-16 text-muted">
+          <p className="text-4xl mb-4">🏁</p>
+          <p className="text-lg font-semibold text-foreground">
+            {raceDaySession.status === "live"
+              ? "Race day — session in progress"
+              : "Race day — verdicts are settling"}
+          </p>
+          <p className="text-sm mt-1">
+            F1 data takes a couple of hours to finalise after the chequered flag.
+            Spoiler-free verdicts will be back soon.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -160,17 +188,6 @@ export default function HomeContent({
       <p className="text-sm text-muted">
         Should you watch in full or just catch the highlights? No spoilers — just data.
       </p>
-
-      {raceDay && (
-        <div className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-f1red/5 border border-f1red/20 text-sm text-muted">
-          <span aria-hidden>🏁</span>
-          <p>
-            <span className="font-semibold text-foreground">Race day.</span>{" "}
-            Verdicts may be delayed while session data settles — nothing here will
-            spoil the result.
-          </p>
-        </div>
-      )}
 
       {sessions.length === 0 && apiError && (
         <div className="text-center py-24 text-muted">

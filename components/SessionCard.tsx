@@ -139,7 +139,7 @@ export default function SessionCard({
               </span>
             </div>
           )}
-          {!loading && !score && !delayed && session.status !== "justFinished" && (
+          {!loading && !score && !delayed && session.status === "completed" && (
             <span className="text-sm text-muted/40 italic">—</span>
           )}
         </div>
