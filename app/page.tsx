@@ -3,6 +3,7 @@ import { getSessions, hasLapData } from "@/lib/openf1";
 import { getCalendar, matchCalendarRound } from "@/lib/jolpica";
 import { F1Session, SessionType } from "@/lib/types";
 import { mapSessionStatus } from "@/lib/sessionStatus";
+import { settleWithConcurrency } from "@/lib/concurrency";
 import HomeContent from "@/components/HomeContent";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -83,7 +84,9 @@ async function fetchSessions(year: number): Promise<FetchSessionsResult> {
     // Use allSettled, not all: a failed check (timeout/rate-limit from OpenF1) must
     // never be treated the same as a confirmed "no lap data" result — that would
     // intermittently hide real races whenever the /laps request has a hiccup.
-    const lapChecks = await Promise.allSettled(lapCheckCandidates.map((s) => hasLapData(s.sessionKey)));
+    // Cap concurrency instead of firing every check at once — OpenF1 rate-limits
+    // bursts, and that's what was causing checks to fail in the first place.
+    const lapChecks = await settleWithConcurrency(lapCheckCandidates, 4, (s) => hasLapData(s.sessionKey));
     const cancelledMeetings = new Set(
       lapCheckCandidates
         .filter((_, i) => lapChecks[i].status === "fulfilled" && lapChecks[i].value === false)
