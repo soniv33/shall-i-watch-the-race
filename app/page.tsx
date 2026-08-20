@@ -80,9 +80,14 @@ async function fetchSessions(year: number): Promise<FetchSessionsResult> {
     // never filtered — OpenF1 has data gaps for real historical races.
     const currentSeason = year === new Date().getFullYear();
     const lapCheckCandidates = currentSeason ? completedRaces : [];
-    const lapChecks = await Promise.all(lapCheckCandidates.map((s) => hasLapData(s.sessionKey)));
+    // Use allSettled, not all: a failed check (timeout/rate-limit from OpenF1) must
+    // never be treated the same as a confirmed "no lap data" result — that would
+    // intermittently hide real races whenever the /laps request has a hiccup.
+    const lapChecks = await Promise.allSettled(lapCheckCandidates.map((s) => hasLapData(s.sessionKey)));
     const cancelledMeetings = new Set(
-      lapCheckCandidates.filter((_, i) => !lapChecks[i]).map((s) => s.meetingKey)
+      lapCheckCandidates
+        .filter((_, i) => lapChecks[i].status === "fulfilled" && lapChecks[i].value === false)
+        .map((s) => s.meetingKey)
     );
     return { sessions: withRounds.filter((s) => !cancelledMeetings.has(s.meetingKey)), apiError: false };
   } catch {
