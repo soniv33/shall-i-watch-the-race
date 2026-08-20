@@ -117,13 +117,9 @@ export function getDrivers(sessionKey: number) {
 }
 
 export async function hasLapData(sessionKey: number): Promise<boolean> {
-  try {
-    const data = await get<unknown[]>("/laps", { session_key: sessionKey, lap_number: 1 });
-    // Require ≥10 drivers recorded on lap 1. Real races have ~20 starters; cancelled
-    // races have zero lap records. The threshold distinguishes them without needing
-    // to know the session outcome.
-    return Array.isArray(data) && data.length >= 10;
-  } catch {
-    return false;
-  }
+  const data = await get<unknown[]>("/laps", { session_key: sessionKey, lap_number: 1 });
+  // Require ≥10 drivers recorded on lap 1. Real races have ~20 starters; cancelled
+  // races have zero lap records. The threshold distinguishes them without needing
+  // to know the session outcome.
+  return Array.isArray(data) && data.length >= 10;
 }
