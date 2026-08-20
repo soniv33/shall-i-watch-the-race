@@ -4,6 +4,8 @@ const BASE = "https://api.openf1.org/v1";
 const CACHE_TTL: Record<string, number> = {
   "/sessions": 120,   // 2 minutes — we want near-real-time session availability
   "/meetings": 300,
+  "/laps": 2592000,   // 30 days — a completed session's lap-1 data never changes,
+                       // so a confirmed check doesn't need re-fetching all season
 };
 const DEFAULT_TTL = 3600;
 
